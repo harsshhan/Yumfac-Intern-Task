@@ -19,54 +19,55 @@ class _ProductdetailsState extends State<Productdetails> {
     productDetails = fetchProductDetails(widget.licenseNo);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(
-            "PRODUCT DETAILS",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-          ),
-          leading: Icon(
-            Icons.arrow_back_ios_new,
+            title: Text(
+              "PRODUCT DETAILS",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+            ),
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.arrow_back_ios_new))),
+        body: Padding(
+          padding: const EdgeInsets.all(14),
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: productDetails,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text("No product details available"));
+              }
+
+              final products = snapshot.data!;
+
+              final inStockProducts =
+                  products.where((p) => p['inStockStatus'] == true).toList();
+              final outOfStockProducts =
+                  products.where((p) => p['inStockStatus'] == false).toList();
+
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (inStockProducts.isNotEmpty)
+                      _buildProductSection("In Stock", inStockProducts),
+                    if (outOfStockProducts.isNotEmpty)
+                      _buildProductSection("Out of Stock", outOfStockProducts),
+                  ],
+                ),
+              );
+            },
           ),
         ),
-        body:Padding(
-        padding: const EdgeInsets.all(14),
-        child: FutureBuilder<List<Map<String, dynamic>>>(
-          future: productDetails,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text("No product details available"));
-            }
-
-            final products = snapshot.data!;
-
-
-            final inStockProducts = products.where((p) => p['inStockStatus'] == true).toList();
-            final outOfStockProducts = products.where((p) => p['inStockStatus'] == false).toList();
-
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (inStockProducts.isNotEmpty) _buildProductSection("In Stock", inStockProducts),
-                  if (outOfStockProducts.isNotEmpty) _buildProductSection("Out of Stock", outOfStockProducts),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-    
-      bottomNavigationBar: Container(
-          padding:
-              EdgeInsets.only(top: 10, bottom: 20),
+        bottomNavigationBar: Container(
+          padding: EdgeInsets.only(top: 10, bottom: 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
@@ -99,14 +100,18 @@ class _ProductdetailsState extends State<Productdetails> {
                           child: Center(
                             child: Text(
                               "Add On Items",
-                              style:
-                                  TextStyle(fontSize: 16, fontWeight: FontWeight.w400,color: AppColors.redColor),
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.redColor),
                             ),
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 15,),
+                    SizedBox(
+                      width: 15,
+                    ),
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
@@ -118,8 +123,10 @@ class _ProductdetailsState extends State<Productdetails> {
                           child: Center(
                             child: Text(
                               "Options",
-                              style:
-                                  TextStyle(fontSize: 16, fontWeight: FontWeight.w400,color: AppColors.redColor),
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.redColor),
                             ),
                           ),
                         ),
@@ -128,7 +135,7 @@ class _ProductdetailsState extends State<Productdetails> {
                   ],
                 ),
               ),
-              SizedBox(height: 15), 
+              SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: Row(
@@ -137,24 +144,27 @@ class _ProductdetailsState extends State<Productdetails> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: (){
+                          onTap: () {
                             Navigator.pushNamed(
-              context,
-              '/addproduct',
-             
-            );
+                              context,
+                              '/addproduct',
+                            );
                           },
                           borderRadius: BorderRadius.circular(20),
                           child: Ink(
                             height: 40,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: AppColors.redColor,
-                              borderRadius: BorderRadius.circular(20)
-                            ),
+                                color: AppColors.redColor,
+                                borderRadius: BorderRadius.circular(20)),
                             child: Center(
-                              child: Text("Add Product", style:
-                                          TextStyle(fontSize: 16, fontWeight: FontWeight.w400,color: Colors.white),),
+                              child: Text(
+                                "Add Product",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.white),
+                              ),
                             ),
                           ),
                         ),
@@ -165,18 +175,20 @@ class _ProductdetailsState extends State<Productdetails> {
               ),
             ],
           ),
-      )
-    );
+        ));
   }
 
-  Widget _buildProductSection(String title, List<Map<String, dynamic>> products) {
+  Widget _buildProductSection(
+      String title, List<Map<String, dynamic>> products) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        Text(title,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
         SizedBox(height: 10),
         Column(
-          children: products.map((product) => _buildProductCard(product)).toList(),
+          children:
+              products.map((product) => _buildProductCard(product)).toList(),
         ),
         SizedBox(height: 20),
       ],
@@ -184,25 +196,27 @@ class _ProductdetailsState extends State<Productdetails> {
   }
 
   Widget _buildProductCard(Map<String, dynamic> product) {
-    final formattedDate = DateFormat("MM/dd/yyyy").format(DateTime.parse(product['createdAt']));
-    
+    final formattedDate =
+        DateFormat("MM/dd/yyyy").format(DateTime.parse(product['createdAt']));
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       height: 80,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey)
-      ),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey)),
       child: ListTile(
         leading: Icon(Icons.drag_handle, color: Colors.grey.shade700),
         title: Text(
           product['productName'],
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.redColor),
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: AppColors.redColor),
         ),
         subtitle: Text("Added On: $formattedDate"),
         trailing: Icon(Icons.more_vert),
       ),
     );
-    
   }
 }

@@ -101,8 +101,10 @@ Future<void> _saveDeliveryDetails() async {
           "PACKAGING & DELIVERY",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
         ),
-        leading: Icon(
-          Icons.arrow_back_ios_new,
+        leading: IconButton(onPressed: (){
+          Navigator.pop(context);
+        },
+        icon: Icon(Icons.arrow_back_ios_new),
         ),
       ),
       body: Padding(
